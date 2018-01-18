@@ -59,6 +59,9 @@ func NewRequest(e events.APIGatewayProxyRequest) (*http.Request, error) {
 	req.Header.Set("X-Request-Id", e.RequestContext.RequestID)
 	req.Header.Set("X-Stage", e.RequestContext.Stage)
 
+	// custom context values
+	req = req.WithContext(newContext(req.Context(), e))
+
 	// host
 	req.URL.Host = req.Header.Get("Host")
 	req.Host = req.URL.Host
