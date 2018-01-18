@@ -16,8 +16,11 @@ import (
 
 func main() {
 	addr := ":" + os.Getenv("PORT")
-	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(addr, nil))
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", hello)
+
+	log.Fatal(gateway.ListenAndServe(addr, mux))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
