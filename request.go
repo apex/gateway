@@ -1,7 +1,9 @@
 package gateway
 
 import (
+	"context"
 	"encoding/base64"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -12,7 +14,7 @@ import (
 )
 
 // NewRequest returns a new http.Request from the given Lambda event.
-func NewRequest(e events.APIGatewayProxyRequest) (*http.Request, error) {
+func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Request, error) {
 	// path
 	u, err := url.Parse(e.Path)
 	if err != nil {
@@ -58,6 +60,11 @@ func NewRequest(e events.APIGatewayProxyRequest) (*http.Request, error) {
 	// custom fields
 	req.Header.Set("X-Request-Id", e.RequestContext.RequestID)
 	req.Header.Set("X-Stage", e.RequestContext.Stage)
+
+	// xray support
+	if traceID := ctx.Value("x-amzn-trace-id"); traceID != nil {
+		req.Header.Set("X-Amzn-Trace-Id", fmt.Sprintf("%v", traceID))
+	}
 
 	// host
 	req.URL.Host = req.Header.Get("Host")
