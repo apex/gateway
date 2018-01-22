@@ -2,6 +2,7 @@
 package gateway
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -17,8 +18,8 @@ func ListenAndServe(addr string, h http.Handler) error {
 		h = http.DefaultServeMux
 	}
 
-	lambda.Start(func(e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		r, err := NewRequest(e)
+	lambda.Start(func(ctx context.Context, e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+		r, err := NewRequest(ctx, e)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
 		}
