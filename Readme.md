@@ -26,6 +26,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	requestContext, ok := gateway.RequestContext(r.Context())
 	if !ok || requestContext.Authorizer["sub"] == nil {
 		fmt.Fprint(w, "Hello World from Go")
+		return
 	}
 
 	userID := requestContext.Authorizer["sub"].(string)
