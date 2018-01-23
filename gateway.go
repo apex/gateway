@@ -13,13 +13,13 @@ import (
 // http.ListenAndServe for use within AWS Lambda.
 //
 // ListenAndServe always returns a non-nil error.
-func ListenAndServe(addr string, h http.Handler) error {
+func ListenAndServe(h http.Handler, basePath string) error {
 	if h == nil {
 		h = http.DefaultServeMux
 	}
 
 	lambda.Start(func(ctx context.Context, e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		r, err := NewRequest(ctx, e)
+		r, err := NewRequest(ctx, e, basePath)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
 		}
