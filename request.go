@@ -16,7 +16,7 @@ import (
 // NewRequest returns a new http.Request from the given Lambda event.
 func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest, basePath string) (*http.Request, error) {
 	// path
-	path := omitBasePath(e.Path)
+	path := omitBasePath(e.Path, basePath)
 	u, err := url.Parse(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing path")
