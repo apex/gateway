@@ -82,7 +82,8 @@ func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 
 // isBinary returns true if the response reprensents binary.
 func isBinary(h http.Header) bool {
-	if !isTextMime(h.Get("Content-Type")) {
+	contentType := strings.Split(h.Get("Content-Type"), ";")[0]
+	if !isTextMime(contentType) {
 		return true
 	}
 
