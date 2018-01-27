@@ -15,9 +15,8 @@ import (
 )
 
 func main() {
-	addr := ":" + os.Getenv("PORT")
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(addr, nil))
+	log.Fatal(gateway.ListenAndServe(":3000", nil))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
