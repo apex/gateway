@@ -39,8 +39,6 @@ func (w *ResponseWriter) Write(b []byte) (int, error) {
 		w.WriteHeader(http.StatusOK)
 	}
 
-	// TODO: HEAD? ignore
-
 	return w.buf.Write(b)
 }
 
@@ -83,15 +81,14 @@ func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 
 // isBinary returns true if the response reprensents binary.
 func isBinary(h http.Header) bool {
-	if !isTextMime(h.Get("Content-Type")) {
+	switch {
+	case !isTextMime(h.Get("Content-Type")):
 		return true
-	}
-
-	if h.Get("Content-Encoding") == "gzip" {
+	case h.Get("Content-Encoding") == "gzip":
 		return true
+	default:
+		return false
 	}
-
-	return false
 }
 
 // isTextMime returns true if the content type represents textual data.
@@ -106,7 +103,7 @@ func isTextMime(kind string) bool {
 	}
 
 	switch mt {
-	case "svg+xml":
+	case "image/svg+xml":
 		return true
 	case "application/json":
 		return true
