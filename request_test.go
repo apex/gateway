@@ -110,3 +110,20 @@ func TestNewRequest_body(t *testing.T) {
 
 	assert.Equal(t, `{ "name": "Tobi" }`, string(b))
 }
+
+func TestNewRequest_bodyBinary(t *testing.T) {
+	e := events.APIGatewayProxyRequest{
+		HTTPMethod:      "POST",
+		Path:            "/pets",
+		Body:            `aGVsbG8gd29ybGQK`,
+		IsBase64Encoded: true,
+	}
+
+	r, err := NewRequest(context.Background(), e)
+	assert.NoError(t, err)
+
+	b, err := ioutil.ReadAll(r.Body)
+	assert.NoError(t, err)
+
+	assert.Equal(t, "hello world\n", string(b))
+}
