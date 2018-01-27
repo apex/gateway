@@ -3,7 +3,7 @@ package gateway
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/tj/assert"
 )
 
 func Test_JSON_isTextMime(t *testing.T) {
