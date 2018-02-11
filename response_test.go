@@ -52,6 +52,7 @@ func TestResponseWriter_Write_text(t *testing.T) {
 			assert.Equal(t, "hello world\n", e.Body)
 			assert.Equal(t, kind, e.Headers["Content-Type"])
 			assert.False(t, e.IsBase64Encoded)
+			assert.True(t, <-w.CloseNotify())
 		})
 	}
 }
