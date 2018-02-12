@@ -13,15 +13,18 @@ import (
 // ResponseWriter implements the http.ResponseWriter interface
 // in order to support the API Gateway Lambda HTTP "protocol".
 type ResponseWriter struct {
-	out         events.APIGatewayProxyResponse
-	buf         bytes.Buffer
-	header      http.Header
-	wroteHeader bool
+	out           events.APIGatewayProxyResponse
+	buf           bytes.Buffer
+	header        http.Header
+	wroteHeader   bool
+	closeNotifyCh chan bool
 }
 
 // NewResponse returns a new response writer to capture http output.
 func NewResponse() *ResponseWriter {
-	return &ResponseWriter{}
+	return &ResponseWriter{
+		closeNotifyCh: make(chan bool, 1),
+	}
 }
 
 // Header implementation.
@@ -66,6 +69,11 @@ func (w *ResponseWriter) WriteHeader(status int) {
 	w.wroteHeader = true
 }
 
+// CloseNotify notify when the response is closed
+func (w *ResponseWriter) CloseNotify() <-chan bool {
+	return w.closeNotifyCh
+}
+
 // End the request.
 func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 	w.out.IsBase64Encoded = isBinary(w.header)
@@ -75,6 +83,9 @@ func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 	} else {
 		w.out.Body = w.buf.String()
 	}
+
+	// notify end
+	w.closeNotifyCh <- true
 
 	return w.out
 }
