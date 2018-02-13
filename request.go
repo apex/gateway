@@ -14,9 +14,10 @@ import (
 )
 
 // NewRequest returns a new http.Request from the given Lambda event.
-func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Request, error) {
+func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest, basePath string) (*http.Request, error) {
 	// path
-	u, err := url.Parse(e.Path)
+	path := omitBasePath(e.Path, basePath)
+	u, err := url.Parse(path)
 	if err != nil {
 		return nil, errors.Wrap(err, "parsing path")
 	}
@@ -71,4 +72,25 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	req.Host = req.URL.Host
 
 	return req, nil
+}
+
+// omitBasePath strips out the base path from the given path.
+//
+// It allows to support both API endpoints (default, auto-generated
+// "execute-api" address and configured Base Path Mapping
+// with a Custom Domain Name), while preserving the same routing
+// registered on the http.Handler.
+func omitBasePath(path string, basePath string) string {
+	if path == "/" || basePath == "" {
+		return path
+	}
+
+	if strings.HasPrefix(path, "/"+basePath) {
+		path = strings.Replace(path, basePath, "", 1)
+	}
+	if strings.HasPrefix(path, "//") {
+		path = path[1:]
+	}
+
+	return path
 }

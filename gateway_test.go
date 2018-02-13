@@ -10,7 +10,16 @@ import (
 
 func Example() {
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(":3000", nil))
+	log.Fatal(gateway.ListenAndServe("", nil))
+}
+
+func ExampleBasePath() {
+	http.HandleFunc("/", hello)
+	g := gateway.Gateway{
+		BasePath: "v1",
+		Handler:  nil,
+	}
+	log.Fatal(g.ListenAndServe())
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {

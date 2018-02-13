@@ -9,25 +9,42 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
+type Gateway struct {
+	BasePath string
+	Handler  http.Handler
+}
+
+// Serve handles incoming event from AWS Lambda by wraping them into
+// http.Request which is further processed by http.Handler to reply
+// as a APIGatewayProxyResponse.
+func (g *Gateway) Serve(ctx context.Context, e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	r, err := NewRequest(ctx, e, g.BasePath)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+
+	w := NewResponse()
+	g.Handler.ServeHTTP(w, r)
+
+	return w.End(), nil
+}
+
+// ListenAndServe registers a listener of AWS Lambda events.
+func (g *Gateway) ListenAndServe() error {
+	if g.Handler == nil {
+		g.Handler = http.DefaultServeMux
+	}
+
+	lambda.Start(g.Serve)
+
+	return nil
+}
+
 // ListenAndServe is a drop-in replacement for
 // http.ListenAndServe for use within AWS Lambda.
 //
 // ListenAndServe always returns a non-nil error.
-func ListenAndServe(addr string, h http.Handler) error {
-	if h == nil {
-		h = http.DefaultServeMux
-	}
-
-	lambda.Start(func(ctx context.Context, e events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-		r, err := NewRequest(ctx, e)
-		if err != nil {
-			return events.APIGatewayProxyResponse{}, err
-		}
-
-		w := NewResponse()
-		h.ServeHTTP(w, r)
-		return w.End(), nil
-	})
-
-	return nil
+func ListenAndServe(_ string, h http.Handler) error {
+	g := &Gateway{Handler: h}
+	return g.ListenAndServe()
 }
