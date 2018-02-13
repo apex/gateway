@@ -127,3 +127,33 @@ func TestNewRequest_bodyBinary(t *testing.T) {
 
 	assert.Equal(t, "hello world\n", string(b))
 }
+
+func TestNewRequest_omitBasePath(t *testing.T) {
+	basePath := "items"
+
+	type args struct {
+		path     string
+		basePath string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"ListItems_WithBasePath_Default", args{"/", basePath}, "/"},
+		{"ListItems_WithBasePath_Custom", args{"/items", basePath}, "/"},
+
+		{"GetItem_WithBasePath_Default", args{"/123", basePath}, "/123"},
+		{"GetItem_WithBasePath_Custom", args{"/items/123", basePath}, "/123"},
+
+		{"ListItems_WithoutBasePath", args{"/", ""}, "/"},
+		{"GetItem_WithoutBasePath", args{"/123", ""}, "/123"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := omitBasePath(tt.args.path, tt.args.basePath); got != tt.want {
+				t.Errorf("omitBasePath() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
