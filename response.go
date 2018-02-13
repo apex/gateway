@@ -3,6 +3,7 @@ package gateway
 import (
 	"bytes"
 	"encoding/base64"
+	"mime"
 	"net/http"
 	"strings"
 
@@ -12,15 +13,18 @@ import (
 // ResponseWriter implements the http.ResponseWriter interface
 // in order to support the API Gateway Lambda HTTP "protocol".
 type ResponseWriter struct {
-	out         events.APIGatewayProxyResponse
-	buf         bytes.Buffer
-	header      http.Header
-	wroteHeader bool
+	out           events.APIGatewayProxyResponse
+	buf           bytes.Buffer
+	header        http.Header
+	wroteHeader   bool
+	closeNotifyCh chan bool
 }
 
 // NewResponse returns a new response writer to capture http output.
 func NewResponse() *ResponseWriter {
-	return &ResponseWriter{}
+	return &ResponseWriter{
+		closeNotifyCh: make(chan bool, 1),
+	}
 }
 
 // Header implementation.
@@ -37,8 +41,6 @@ func (w *ResponseWriter) Write(b []byte) (int, error) {
 	if !w.wroteHeader {
 		w.WriteHeader(http.StatusOK)
 	}
-
-	// TODO: HEAD? ignore
 
 	return w.buf.Write(b)
 }
@@ -67,6 +69,11 @@ func (w *ResponseWriter) WriteHeader(status int) {
 	w.wroteHeader = true
 }
 
+// CloseNotify notify when the response is closed
+func (w *ResponseWriter) CloseNotify() <-chan bool {
+	return w.closeNotifyCh
+}
+
 // End the request.
 func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 	w.out.IsBase64Encoded = isBinary(w.header)
@@ -77,32 +84,41 @@ func (w *ResponseWriter) End() events.APIGatewayProxyResponse {
 		w.out.Body = w.buf.String()
 	}
 
+	// notify end
+	w.closeNotifyCh <- true
+
 	return w.out
 }
 
 // isBinary returns true if the response reprensents binary.
 func isBinary(h http.Header) bool {
-	if !isTextMime(h.Get("Content-Type")) {
+	switch {
+	case !isTextMime(h.Get("Content-Type")):
 		return true
-	}
-
-	if h.Get("Content-Encoding") == "gzip" {
+	case h.Get("Content-Encoding") == "gzip":
 		return true
+	default:
+		return false
 	}
-
-	return false
 }
 
 // isTextMime returns true if the content type represents textual data.
 func isTextMime(kind string) bool {
-	switch {
-	case strings.HasSuffix(kind, "svg+xml"):
+	mt, _, err := mime.ParseMediaType(kind)
+	if err != nil {
+		return false
+	}
+
+	if strings.HasPrefix(mt, "text/") {
 		return true
-	case strings.HasPrefix(kind, "text/"):
+	}
+
+	switch mt {
+	case "image/svg+xml":
 		return true
-	case strings.HasPrefix(kind, "application/") && strings.HasSuffix(kind, "json"):
+	case "application/json":
 		return true
-	case strings.HasPrefix(kind, "application/") && strings.HasSuffix(kind, "xml"):
+	case "application/xml":
 		return true
 	default:
 		return false
