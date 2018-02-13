@@ -10,7 +10,7 @@ import (
 
 func Example() {
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(":3000", nil))
+	log.Fatal(gateway.ListenAndServe(nil, ""))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {

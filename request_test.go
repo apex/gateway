@@ -14,7 +14,7 @@ func TestNewRequest_path(t *testing.T) {
 		Path: "/pets/luna",
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	assert.Equal(t, "GET", r.Method)
@@ -28,7 +28,7 @@ func TestNewRequest_method(t *testing.T) {
 		Path:       "/pets/luna",
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	assert.Equal(t, "DELETE", r.Method)
@@ -44,7 +44,7 @@ func TestNewRequest_queryString(t *testing.T) {
 		},
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	assert.Equal(t, `/pets?fields=name%2Cspecies&order=desc`, r.URL.String())
@@ -62,7 +62,7 @@ func TestNewRequest_remoteAddr(t *testing.T) {
 		},
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	assert.Equal(t, `1.2.3.4`, r.RemoteAddr)
@@ -84,7 +84,7 @@ func TestNewRequest_header(t *testing.T) {
 		},
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	assert.Equal(t, `example.com`, r.Host)
@@ -102,7 +102,7 @@ func TestNewRequest_body(t *testing.T) {
 		Body:       `{ "name": "Tobi" }`,
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(r.Body)
@@ -119,7 +119,7 @@ func TestNewRequest_bodyBinary(t *testing.T) {
 		IsBase64Encoded: true,
 	}
 
-	r, err := NewRequest(context.Background(), e)
+	r, err := NewRequest(context.Background(), e, "")
 	assert.NoError(t, err)
 
 	b, err := ioutil.ReadAll(r.Body)
