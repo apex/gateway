@@ -13,6 +13,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const apiHostSuffix = ".amazonaws.com"
+
 // NewRequest returns a new http.Request from the given Lambda event.
 func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Request, error) {
 	// path
@@ -69,6 +71,11 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	// host
 	req.URL.Host = req.Header.Get("Host")
 	req.Host = req.URL.Host
+
+	// add stage to path
+	if strings.HasSuffix(req.Host, apiHostSuffix) {
+		req.URL.Path = "/" + e.RequestContext.Stage + req.URL.Path
+	}
 
 	return req, nil
 }
