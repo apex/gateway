@@ -127,3 +127,29 @@ func TestNewRequest_bodyBinary(t *testing.T) {
 
 	assert.Equal(t, "hello world\n", string(b))
 }
+
+func TestNewRequest_apiHostname(t *testing.T) {
+	e := events.APIGatewayProxyRequest{
+		HTTPMethod: "POST",
+		Path:       "/pets",
+		Body:       `{ "name": "Tobi" }`,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+			"Host":         "1234567890.execute-api.us-east-1.amazonaws.com",
+		},
+		RequestContext: events.APIGatewayProxyRequestContext{
+			RequestID: "1234",
+			Stage:     "prod",
+		},
+	}
+
+	r, err := NewRequest(context.Background(), e)
+	assert.NoError(t, err)
+
+	assert.Equal(t, `1234567890.execute-api.us-east-1.amazonaws.com`, r.Host)
+	assert.Equal(t, `prod`, r.Header.Get("X-Stage"))
+	assert.Equal(t, `1234`, r.Header.Get("X-Request-Id"))
+	assert.Equal(t, `18`, r.Header.Get("Content-Length"))
+	assert.Equal(t, `application/json`, r.Header.Get("Content-Type"))
+	assert.Equal(t, `/prod/pets`, r.URL.Path)
+}
