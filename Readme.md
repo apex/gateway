@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/apex/gateway"
+	"github.com/aws/aws-lambda-go"
 )
 
 func main() {
@@ -20,7 +21,15 @@ func main() {
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World from Go")
+	// example retrieving values from the api gateway proxy request context.
+	requestContext, ok := gateway.RequestContext(r.Context())
+	if !ok || requestContext.Authorizer["sub"] == nil {
+		fmt.Fprint(w, "Hello World from Go")
+		return
+	}
+
+	userID := requestContext.Authorizer["sub"].(string)
+	fmt.Fprintf(w, "Hello %s from Go", userID)
 }
 ```
 
