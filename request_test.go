@@ -127,3 +127,12 @@ func TestNewRequest_bodyBinary(t *testing.T) {
 
 	assert.Equal(t, "hello world\n", string(b))
 }
+
+func TestNewRequest_context(t *testing.T) {
+	e := events.APIGatewayProxyRequest{}
+	ctx := context.WithValue(context.Background(), "key", "value")
+	r, err := NewRequest(ctx, e)
+	assert.NoError(t, err)
+	v := r.Context().Value("key")
+	assert.Equal(t, "value", v)
+}

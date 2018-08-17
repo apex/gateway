@@ -62,7 +62,7 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	req.Header.Set("X-Stage", e.RequestContext.Stage)
 
 	// custom context values
-	req = req.WithContext(newContext(req.Context(), e))
+	req = req.WithContext(newContext(ctx, e))
 
 	// xray support
 	if traceID := ctx.Value("x-amzn-trace-id"); traceID != nil {
