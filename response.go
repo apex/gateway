@@ -58,14 +58,18 @@ func (w *ResponseWriter) WriteHeader(status int) {
 	w.out.StatusCode = status
 
 	h := make(map[string]string)
+	mvh := make(map[string][]string)
 
 	for k, v := range w.Header() {
-		if len(v) > 0 {
-			h[k] = v[len(v)-1]
+		if len(v) == 1 {
+			h[k] = v[0]
+		} else if len(v) > 1 {
+			mvh[k] = v
 		}
 	}
 
 	w.out.Headers = h
+	w.out.MultiValueHeaders = mvh
 	w.wroteHeader = true
 }
 
