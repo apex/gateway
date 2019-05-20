@@ -28,9 +28,7 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	}
 
 	for k, values := range e.MultiValueQueryStringParameters {
-		for _, v := range values {
-			q.Add(k, v)
-		}
+		q[k] = values
 	}
 	u.RawQuery = q.Encode()
 
