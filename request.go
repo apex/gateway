@@ -26,6 +26,10 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	for k, v := range e.QueryStringParameters {
 		q.Set(k, v)
 	}
+
+	for k, values := range e.MultiValueQueryStringParameters {
+		q[k] = values
+	}
 	u.RawQuery = q.Encode()
 
 	// base64 encoded body
@@ -50,6 +54,10 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	// header fields
 	for k, v := range e.Headers {
 		req.Header.Set(k, v)
+	}
+
+	for k, values := range e.MultiValueHeaders {
+		req.Header[k] = values
 	}
 
 	// content-length

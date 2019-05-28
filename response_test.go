@@ -30,6 +30,19 @@ func TestResponseWriter_Header(t *testing.T) {
 	assert.Equal(t, "Bar: baz\r\nFoo: bar\r\n", buf.String())
 }
 
+func TestResponseWriter_multiHeader(t *testing.T) {
+	w := NewResponse()
+	w.Header().Set("Foo", "bar")
+	w.Header().Set("Bar", "baz")
+	w.Header().Add("X-APEX", "apex1")
+	w.Header().Add("X-APEX", "apex2")
+
+	var buf bytes.Buffer
+	w.header.Write(&buf)
+
+	assert.Equal(t, "Bar: baz\r\nFoo: bar\r\nX-Apex: apex1\r\nX-Apex: apex2\r\n", buf.String())
+}
+
 func TestResponseWriter_Write_text(t *testing.T) {
 	types := []string{
 		"text/x-custom",
