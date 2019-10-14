@@ -9,15 +9,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/apex/gateway"
-	"github.com/aws/aws-lambda-go"
 )
 
 func main() {
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(":3000", nil))
+	log.Fatal(gateway.ListenAndServe("n/a", nil))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
