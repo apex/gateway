@@ -12,7 +12,6 @@ import (
 	"os"
 
 	"github.com/apex/gateway"
-	"github.com/aws/aws-lambda-go"
 )
 
 func main() {
