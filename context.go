@@ -6,11 +6,18 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 )
 
-// key is the type used for any items added to the request context.
-type key int
+// Key is the type used for any items added to the request context.
+type Key int
 
 // requestContextKey is the key for the api gateway proxy `RequestContext`.
-const requestContextKey key = iota
+const requestContextKey Key = iota
+
+// GetRequestContextKey is useful for creating custom claims when testing locally
+// ctx := context.WithValue(r.Context(), algnhsa.GetProxyRequestContextKey(), customLocalClaims)
+// r = r.Clone(ctx)y
+func GetRequestContextKey() Key {
+	return requestContextKey
+}
 
 // newContext returns a new Context with specific api gateway proxy values.
 func newContext(ctx context.Context, e events.APIGatewayProxyRequest) context.Context {
