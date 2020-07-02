@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apex/gateway"
+	"github.com/apex/gateway/v2"
 	"github.com/tj/assert"
 )
 
@@ -22,11 +22,11 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 func TestGateway_Invoke(t *testing.T) {
 
-	e := []byte(`{"version": "1.0", "rawPath": "/pets/luna", "requestContext": {"http": {"method": "POST"}}}`)
+	e := []byte(`{"version": "2.0", "rawPath": "/pets/luna", "requestContext": {"http": {"method": "POST"}}}`)
 
 	gw := gateway.NewGateway(http.HandlerFunc(hello))
 
 	payload, err := gw.Invoke(context.Background(), e)
 	assert.NoError(t, err)
-	assert.JSONEq(t, `{"body":"Hello World from Go\n", "headers":{"Content-Type":"text/plain; charset=utf8"}, "multiValueHeaders":{}, "statusCode":200}`, string(payload))
+	assert.JSONEq(t, `{"body":"Hello World from Go\n", "cookies": null, "headers":{"Content-Type":"text/plain; charset=utf8"}, "multiValueHeaders":{}, "statusCode":200}`, string(payload))
 }
