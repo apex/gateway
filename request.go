@@ -50,7 +50,7 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 
 	// manually set RequestURI because NewRequest is for clients and req.RequestURI is for servers
 	req.RequestURI = e.Path
-	
+
 	// remote addr
 	req.RemoteAddr = e.RequestContext.Identity.SourceIP
 

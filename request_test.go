@@ -56,8 +56,8 @@ func TestNewRequest_multiValueQueryString(t *testing.T) {
 		HTTPMethod: "GET",
 		Path:       "/pets",
 		MultiValueQueryStringParameters: map[string][]string{
-			"multi_fields": []string{"name", "species"},
-			"multi_arr[]":  []string{"arr1", "arr2"},
+			"multi_fields": {"name", "species"},
+			"multi_arr[]":  {"arr1", "arr2"},
 		},
 		QueryStringParameters: map[string]string{
 			"order":  "desc",
@@ -123,8 +123,8 @@ func TestNewRequest_multiHeader(t *testing.T) {
 		Path:       "/pets",
 		Body:       `{ "name": "Tobi" }`,
 		MultiValueHeaders: map[string][]string{
-			"X-APEX":   []string{"apex1", "apex2"},
-			"X-APEX-2": []string{"apex-1", "apex-2"},
+			"X-APEX":   {"apex1", "apex2"},
+			"X-APEX-2": {"apex-1", "apex-2"},
 		},
 		Headers: map[string]string{
 			"Content-Type": "application/json",
