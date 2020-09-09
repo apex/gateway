@@ -20,6 +20,7 @@ func TestNewRequest_path(t *testing.T) {
 	assert.Equal(t, "GET", r.Method)
 	assert.Equal(t, `/pets/luna`, r.URL.Path)
 	assert.Equal(t, `/pets/luna`, r.URL.String())
+	assert.Equal(t, `/pets/luna`, r.RequestURI)
 }
 
 func TestNewRequest_method(t *testing.T) {
@@ -71,6 +72,7 @@ func TestNewRequest_multiValueQueryString(t *testing.T) {
 	assert.Equal(t, `/pets?fields=name%2Cspecies&multi_arr%5B%5D=arr1&multi_arr%5B%5D=arr2&multi_fields=name&multi_fields=species&order=desc`, r.URL.String())
 	assert.Equal(t, []string{"name", "species"}, r.URL.Query()["multi_fields"])
 	assert.Equal(t, []string{"arr1", "arr2"}, r.URL.Query()["multi_arr[]"])
+	assert.Equal(t, `/pets?fields=name%2Cspecies&multi_arr%5B%5D=arr1&multi_arr%5B%5D=arr2&multi_fields=name&multi_fields=species&order=desc`, r.RequestURI)
 }
 
 func TestNewRequest_remoteAddr(t *testing.T) {
