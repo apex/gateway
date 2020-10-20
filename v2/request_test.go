@@ -171,6 +171,31 @@ func TestDecodeRequest_multiHeader(t *testing.T) {
 	assert.Equal(t, []string{"apex-1", "apex-2"}, r.Header["X-Apex-2"])
 }
 
+func TestDecodeRequest_cookie(t *testing.T) {
+	e := events.APIGatewayV2HTTPRequest{
+		RawPath: "/pets",
+		Body:    `{ "name": "Tobi" }`,
+		Headers: map[string]string{},
+		Cookies: []string{"TEST_COOKIE=TEST-VALUE"},
+		RequestContext: events.APIGatewayV2HTTPRequestContext{
+			RequestID: "1234",
+			Stage:     "prod",
+			HTTP: events.APIGatewayV2HTTPRequestContextHTTPDescription{
+				Path:   "/pets",
+				Method: "POST",
+			},
+		},
+	}
+
+	r, err := NewRequest(context.Background(), e)
+	assert.NoError(t, err)
+
+	c, err := r.Cookie("TEST_COOKIE")
+	assert.NoError(t, err)
+
+	assert.Equal(t, "TEST-VALUE", c.Value)
+}
+
 func TestDecodeRequest_body(t *testing.T) {
 	e := events.APIGatewayV2HTTPRequest{
 		RawPath: "/pets",
