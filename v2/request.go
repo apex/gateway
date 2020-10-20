@@ -51,6 +51,9 @@ func NewRequest(ctx context.Context, e events.APIGatewayV2HTTPRequest) (*http.Re
 			req.Header.Add(k, v)
 		}
 	}
+	for _, c := range e.Cookies {
+		req.Header.Add("Cookie", c)
+	}
 
 	// content-length
 	if req.Header.Get("Content-Length") == "" && body != "" {
