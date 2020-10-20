@@ -40,7 +40,7 @@ func NewRequest(ctx context.Context, e events.APIGatewayV2HTTPRequest) (*http.Re
 	}
 
 	// manually set RequestURI because NewRequest is for clients and req.RequestURI is for servers
-	req.RequestURI = e.RawPath
+	req.RequestURI = u.RequestURI()
 
 	// remote addr
 	req.RemoteAddr = e.RequestContext.HTTP.SourceIP
