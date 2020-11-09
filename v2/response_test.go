@@ -105,3 +105,12 @@ func TestResponseWriter_WriteHeader(t *testing.T) {
 	assert.Equal(t, "Not Found\n", e.Body)
 	assert.Equal(t, "text/plain; charset=utf8", e.Headers["Content-Type"])
 }
+
+func TestResponseWriter_WriteHeadersWhenEmpty(t *testing.T) {
+	w := NewResponse()
+	w.Header().Set("Content-Type", "text/xml")
+
+	e := w.End()
+	assert.Equal(t, 200, e.StatusCode)
+	assert.Equal(t, "text/xml", e.Headers["Content-Type"])
+}

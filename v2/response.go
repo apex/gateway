@@ -92,6 +92,9 @@ func (w *ResponseWriter) End() events.APIGatewayV2HTTPResponse {
 	w.out.Cookies = w.header["Set-Cookie"]
 	w.header.Del("Set-Cookie")
 
+	// ensure headers are written out
+	w.Write([]byte{})
+
 	// notify end
 	w.closeNotifyCh <- true
 
