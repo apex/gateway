@@ -63,6 +63,7 @@ func (w *ResponseWriter) WriteHeader(status int) {
 	for k, v := range w.Header() {
 		if len(v) == 1 {
 			h[k] = v[0]
+			mvh[k] = v
 		} else if len(v) > 1 {
 			mvh[k] = v
 		}
