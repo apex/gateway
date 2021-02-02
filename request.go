@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strconv"
 	"strings"
@@ -60,7 +61,7 @@ func NewRequest(ctx context.Context, e events.APIGatewayProxyRequest) (*http.Req
 	}
 
 	for k, values := range e.MultiValueHeaders {
-		req.Header[k] = values
+		req.Header[textproto.CanonicalMIMEHeaderKey(k)] = values
 	}
 
 	// content-length
