@@ -59,9 +59,14 @@ func (w *ResponseWriter) WriteHeader(status int) {
 
 	h := make(map[string]string)
 	mvh := make(map[string][]string)
+	var cookies []string
 
 	for k, v := range w.Header() {
-		if len(v) == 1 {
+		if http.CanonicalHeaderKey(k) == "Set-Cookie" {
+			// cookies are not returned in header maps
+			// see https://aws.amazon.com/blogs/compute/simply-serverless-using-aws-lambda-to-expose-custom-cookies-with-api-gateway/
+			cookies = append(cookies, v...)
+		} else if len(v) == 1 {
 			h[k] = v[0]
 		} else if len(v) > 1 {
 			mvh[k] = v
@@ -70,6 +75,7 @@ func (w *ResponseWriter) WriteHeader(status int) {
 
 	w.out.Headers = h
 	w.out.MultiValueHeaders = mvh
+	w.out.Cookies = cookies
 	w.wroteHeader = true
 }
 
@@ -87,10 +93,6 @@ func (w *ResponseWriter) End() events.APIGatewayV2HTTPResponse {
 	} else {
 		w.out.Body = w.buf.String()
 	}
-
-	// see https://aws.amazon.com/blogs/compute/simply-serverless-using-aws-lambda-to-expose-custom-cookies-with-api-gateway/
-	w.out.Cookies = w.header["Set-Cookie"]
-	w.header.Del("Set-Cookie")
 
 	// notify end
 	w.closeNotifyCh <- true
