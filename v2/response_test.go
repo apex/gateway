@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"bytes"
+	"net/http"
 	"testing"
 
 	"github.com/tj/assert"
@@ -104,4 +105,21 @@ func TestResponseWriter_WriteHeader(t *testing.T) {
 	assert.Equal(t, 404, e.StatusCode)
 	assert.Equal(t, "Not Found\n", e.Body)
 	assert.Equal(t, "text/plain; charset=utf8", e.Headers["Content-Type"])
+}
+
+func TestResponseWriter_Cookie(t *testing.T) {
+	w := NewResponse()
+	http.SetCookie(w, &http.Cookie{
+		Name:  "foo",
+		Value: "bar",
+	})
+	w.WriteHeader(200)
+	w.Write([]byte("Have a cookie\n"))
+
+	e := w.End()
+	assert.Equal(t, 200, e.StatusCode)
+	assert.Equal(t, "Have a cookie\n", e.Body)
+	assert.Equal(t, 1, len(e.Headers))
+	assert.Equal(t, "text/plain; charset=utf8", e.Headers["Content-Type"])
+	assert.Equal(t, []string{"foo=bar"}, e.Cookies)
 }
