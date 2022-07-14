@@ -1,4 +1,4 @@
-package gateway
+package apiv2
 
 import (
 	"bytes"

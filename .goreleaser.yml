@@ -1,0 +1,45 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy -compat=1.17
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    main: cmd/main.go
+    goos:
+      - linux
+
+archives:
+  - replacements:
+      linux: Linux
+      386: i386
+      amd64: x86_64
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+announce:
+  slack:
+    # Whether its enabled or not.
+    # Defaults to false.
+    enabled: true
+
+    # Message template to use while publishing.
+    # Defaults to `{{ .ProjectName }} {{ .Tag }} is out! Check it out at {{ .ReleaseURL }}`
+    message_template: 'Gateway {{.Tag}} is out!'
+
+    # The name of the channel that the user selected as a destination for webhook messages.
+    channel: '#engineering'

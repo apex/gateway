@@ -1,4 +1,4 @@
-package gateway_test
+package apiv2_test
 
 import (
 	"context"
@@ -7,13 +7,13 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apex/gateway/v2"
+	gateway "github.com/Drafteame/gateway/v2/apiv2"
 	"github.com/tj/assert"
 )
 
 func Example() {
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(":3000", nil))
+	log.Fatal(gateway.ListenAndServe(nil))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {

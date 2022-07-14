@@ -1,4 +1,4 @@
-package gateway
+package apiv2
 
 import (
 	"context"
@@ -243,9 +243,13 @@ func TestDecodeRequest_bodyBinary(t *testing.T) {
 
 func TestDecodeRequest_context(t *testing.T) {
 	e := events.APIGatewayV2HTTPRequest{}
-	ctx := context.WithValue(context.Background(), "key", "value")
+	type key string
+
+	var keyName key = "key"
+
+	ctx := context.WithValue(context.Background(), keyName, "value")
 	r, err := NewRequest(ctx, e)
 	assert.NoError(t, err)
-	v := r.Context().Value("key")
+	v := r.Context().Value(keyName)
 	assert.Equal(t, "value", v)
 }

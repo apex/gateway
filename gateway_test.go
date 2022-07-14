@@ -7,21 +7,20 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/apex/gateway"
+	"github.com/Drafteame/gateway/v2"
 	"github.com/tj/assert"
 )
 
 func Example() {
 	http.HandleFunc("/", hello)
-	log.Fatal(gateway.ListenAndServe(":3000", nil))
+	log.Fatal(gateway.ListenAndServe(nil))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World from Go")
+	_, _ = fmt.Fprintln(w, "Hello World from Go")
 }
 
 func TestGateway_Invoke(t *testing.T) {
-
 	e := []byte(`{"version": "1.0", "rawPath": "/pets/luna", "requestContext": {"http": {"method": "POST"}}}`)
 
 	gw := gateway.NewGateway(http.HandlerFunc(hello))

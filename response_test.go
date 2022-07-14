@@ -25,9 +25,10 @@ func TestResponseWriter_Header(t *testing.T) {
 	w.Header().Set("Bar", "baz")
 
 	var buf bytes.Buffer
-	w.header.Write(&buf)
+	err := w.header.Write(&buf)
 
 	assert.Equal(t, "Bar: baz\r\nFoo: bar\r\n", buf.String())
+	assert.NoError(t, err)
 }
 
 func TestResponseWriter_multiHeader(t *testing.T) {
@@ -38,9 +39,10 @@ func TestResponseWriter_multiHeader(t *testing.T) {
 	w.Header().Add("X-APEX", "apex2")
 
 	var buf bytes.Buffer
-	w.header.Write(&buf)
+	err := w.header.Write(&buf)
 
 	assert.Equal(t, "Bar: baz\r\nFoo: bar\r\nX-Apex: apex1\r\nX-Apex: apex2\r\n", buf.String())
+	assert.NoError(t, err)
 }
 
 func TestResponseWriter_Write_text(t *testing.T) {
@@ -58,7 +60,7 @@ func TestResponseWriter_Write_text(t *testing.T) {
 		t.Run(kind, func(t *testing.T) {
 			w := NewResponse()
 			w.Header().Set("Content-Type", kind)
-			w.Write([]byte("hello world\n"))
+			_, err := w.Write([]byte("hello world\n"))
 
 			e := w.End()
 			assert.Equal(t, 200, e.StatusCode)
@@ -66,6 +68,7 @@ func TestResponseWriter_Write_text(t *testing.T) {
 			assert.Equal(t, kind, e.Headers["Content-Type"])
 			assert.False(t, e.IsBase64Encoded)
 			assert.True(t, <-w.CloseNotify())
+			assert.NoError(t, err)
 		})
 	}
 }
@@ -73,35 +76,38 @@ func TestResponseWriter_Write_text(t *testing.T) {
 func TestResponseWriter_Write_binary(t *testing.T) {
 	w := NewResponse()
 	w.Header().Set("Content-Type", "image/png")
-	w.Write([]byte("data"))
+	_, err := w.Write([]byte("data"))
 
 	e := w.End()
 	assert.Equal(t, 200, e.StatusCode)
 	assert.Equal(t, "ZGF0YQ==", e.Body)
 	assert.Equal(t, "image/png", e.Headers["Content-Type"])
 	assert.True(t, e.IsBase64Encoded)
+	assert.NoError(t, err)
 }
 
 func TestResponseWriter_Write_gzip(t *testing.T) {
 	w := NewResponse()
 	w.Header().Set("Content-Type", "text/plain")
 	w.Header().Set("Content-Encoding", "gzip")
-	w.Write([]byte("data"))
+	_, err := w.Write([]byte("data"))
 
 	e := w.End()
 	assert.Equal(t, 200, e.StatusCode)
 	assert.Equal(t, "ZGF0YQ==", e.Body)
 	assert.Equal(t, "text/plain", e.Headers["Content-Type"])
 	assert.True(t, e.IsBase64Encoded)
+	assert.NoError(t, err)
 }
 
 func TestResponseWriter_WriteHeader(t *testing.T) {
 	w := NewResponse()
 	w.WriteHeader(404)
-	w.Write([]byte("Not Found\n"))
+	_, err := w.Write([]byte("Not Found\n"))
 
 	e := w.End()
 	assert.Equal(t, 404, e.StatusCode)
 	assert.Equal(t, "Not Found\n", e.Body)
 	assert.Equal(t, "text/plain; charset=utf8", e.Headers["Content-Type"])
+	assert.NoError(t, err)
 }

@@ -57,8 +57,8 @@ func TestNewRequest_multiValueQueryString(t *testing.T) {
 		HTTPMethod: "GET",
 		Path:       "/pets",
 		MultiValueQueryStringParameters: map[string][]string{
-			"multi_fields": []string{"name", "species"},
-			"multi_arr[]":  []string{"arr1", "arr2"},
+			"multi_fields": {"name", "species"},
+			"multi_arr[]":  {"arr1", "arr2"},
 		},
 		QueryStringParameters: map[string]string{
 			"order":  "desc",
@@ -125,8 +125,8 @@ func TestNewRequest_multiHeader(t *testing.T) {
 		Path:       "/pets",
 		Body:       `{ "name": "Tobi" }`,
 		MultiValueHeaders: map[string][]string{
-			"X-APEX":   []string{"apex1", "apex2"},
-			"X-APEX-2": []string{"apex-1", "apex-2"},
+			"X-Custom":   {"apex1", "apex2"},
+			"X-Custom-2": {"apex-1", "apex-2"},
 		},
 		Headers: map[string]string{
 			"Content-Type": "application/json",
@@ -148,8 +148,8 @@ func TestNewRequest_multiHeader(t *testing.T) {
 	assert.Equal(t, `18`, r.Header.Get("Content-Length"))
 	assert.Equal(t, `application/json`, r.Header.Get("Content-Type"))
 	assert.Equal(t, `bar`, r.Header.Get("X-Foo"))
-	assert.Equal(t, []string{"apex1", "apex2"}, r.Header["X-APEX"])
-	assert.Equal(t, []string{"apex-1", "apex-2"}, r.Header["X-APEX-2"])
+	assert.Equal(t, []string{"apex1", "apex2"}, r.Header["X-Custom"])
+	assert.Equal(t, []string{"apex-1", "apex-2"}, r.Header["X-Custom-2"])
 }
 
 func TestNewRequest_body(t *testing.T) {
@@ -187,9 +187,13 @@ func TestNewRequest_bodyBinary(t *testing.T) {
 
 func TestNewRequest_context(t *testing.T) {
 	e := events.APIGatewayProxyRequest{}
-	ctx := context.WithValue(context.Background(), "key", "value")
+	type key string
+
+	var keyName key = "key"
+
+	ctx := context.WithValue(context.Background(), keyName, "value")
 	r, err := NewRequest(ctx, e)
 	assert.NoError(t, err)
-	v := r.Context().Value("key")
+	v := r.Context().Value(keyName)
 	assert.Equal(t, "value", v)
 }

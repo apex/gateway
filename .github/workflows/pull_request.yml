@@ -1,0 +1,93 @@
+name: Unit Test
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    name: 👍 Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
+
+      - name: Config private packages
+        run: git config --global url.https://${{ secrets.ACCESS_TOKEN }}@github.com/Drafteame.insteadOf https://github.com/Drafteame
+
+      # Cache go build cache, used to speedup go test
+      - name: Go Build Cache
+        id: cache-go-mod
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Install dependencies
+        if: steps.cache-go-mod.outputs.cache-hit != 'true'
+        run: go mod download
+
+      - name: Test
+        uses: magefile/mage-action@v2.0.0
+        with:
+          version: latest
+          args: test
+
+  lint:
+    name: 💅 Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.x
+
+      - name: Config private packages
+        run: git config --global url.https://${{ secrets.ACCESS_TOKEN }}@github.com/Drafteame.insteadOf https://github.com/Drafteame
+
+      # Cache go build cache, used to speedup go test
+      - name: Go Build Cache
+        id: cache-go-mod
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
+
+      - name: Install dependencies
+        if: steps.cache-go-mod.outputs.cache-hit != 'true'
+        run: go mod download
+
+      - name: golint
+        uses: reviewdog/action-golangci-lint@v2
+        with:
+          golangci_lint_flags: '--disable-all -E golint'
+          level: warning
+
+  commit_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: '${{ secrets.ACCESS_TOKEN }}'
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Commitizen
+        run: pip install -U commitizen
+
+      - name: Check commits
+        run: cz check --rev-range origin/main..HEAD

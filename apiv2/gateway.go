@@ -1,5 +1,4 @@
-// Package gateway provides a drop-in replacement for net/http.ListenAndServe for use in AWS Lambda & API Gateway.
-package gateway
+package apiv2
 
 import (
 	"context"
@@ -89,16 +88,17 @@ type Gateway struct {
 	h http.Handler
 }
 
+// Invoke Handler implementation
 func (gw *Gateway) Invoke(ctx context.Context, payload []byte) ([]byte, error) {
-	evt := events.APIGatewayProxyRequest{}
+	var evt events.APIGatewayV2HTTPRequest
 
 	if err := json.Unmarshal(payload, &evt); err != nil {
-		return nil, err
+		return []byte{}, err
 	}
 
 	r, err := NewRequest(ctx, evt)
 	if err != nil {
-		return nil, err
+		return []byte{}, err
 	}
 
 	w := NewResponse()
